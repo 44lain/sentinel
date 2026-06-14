@@ -26,6 +26,14 @@ type ThemeSnapshot = {
   resolved: "light" | "dark";
 };
 
+/** Referência estável — React exige cache em getServerSnapshot. */
+const SERVER_THEME_SNAPSHOT: ThemeSnapshot = {
+  preference: "system",
+  resolved: "dark",
+};
+
+let clientSnapshot: ThemeSnapshot = SERVER_THEME_SNAPSHOT;
+
 const listeners = new Set<() => void>();
 
 function emitThemeChange() {
@@ -50,12 +58,18 @@ function resolveTheme(preference: ThemePreference): "light" | "dark" {
 
 function getThemeSnapshot(): ThemeSnapshot {
   const preference = readStoredPreference();
-  return { preference, resolved: resolveTheme(preference) };
+  const resolved = resolveTheme(preference);
+
+  if (clientSnapshot.preference === preference && clientSnapshot.resolved === resolved) {
+    return clientSnapshot;
+  }
+
+  clientSnapshot = { preference, resolved };
+  return clientSnapshot;
 }
 
-/** Snapshot estável no SSR e durante a hidratação — evita mismatch. */
 function getServerThemeSnapshot(): ThemeSnapshot {
-  return { preference: "system", resolved: "dark" };
+  return SERVER_THEME_SNAPSHOT;
 }
 
 function subscribeToTheme(onStoreChange: () => void) {
