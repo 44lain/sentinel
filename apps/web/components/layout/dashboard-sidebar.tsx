@@ -3,13 +3,15 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { Bot, LayoutDashboard, Package, Settings } from "lucide-react";
+import { Bot, History, LayoutDashboard, Package, Settings, ShieldAlert } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/inventory", label: "Inventário", icon: Package },
+  { href: "/scans", label: "Scans", icon: History },
+  { href: "/risks", label: "Riscos", icon: ShieldAlert },
   { href: "/agents", label: "Agentes", icon: Bot },
   { href: "/settings", label: "Configurações", icon: Settings },
 ] as const;
@@ -19,8 +21,8 @@ export function DashboardSidebar() {
 
   return (
     <aside className="border-border bg-sidebar hidden w-64 flex-col border-r md:flex">
-      <div className="border-sidebar-border px-4 py-5">
-        <Logo href="/dashboard" variant="full" />
+      <div className="border-sidebar-border flex justify-center px-4 py-4">
+        <Logo href="/dashboard" variant="full" className="w-44" />
       </div>
       <nav className="flex flex-1 flex-col gap-1 p-3 text-sm">
         {NAV_ITEMS.map((item) => {

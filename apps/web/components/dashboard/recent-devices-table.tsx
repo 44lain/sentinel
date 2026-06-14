@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusBadge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -52,7 +53,14 @@ export function RecentDevicesTable({ devices }: RecentDevicesTableProps) {
                   key={device.id}
                   className="border-border hover:bg-muted/40 border-b last:border-0"
                 >
-                  <td className="px-4 py-3 font-mono">{device.ip}</td>
+                  <td className="px-4 py-3 font-mono">
+                    <Link
+                      href={`/inventory/${encodeURIComponent(device.ip)}`}
+                      className="text-primary hover:underline"
+                    >
+                      {device.ip}
+                    </Link>
+                  </td>
                   <td className="px-4 py-3">{device.hostname ?? "—"}</td>
                   <td className="px-4 py-3">
                     <StatusBadge status={device.status} />
@@ -66,7 +74,15 @@ export function RecentDevicesTable({ devices }: RecentDevicesTableProps) {
                       </span>
                     ) : null}
                   </td>
-                  <td className="px-4 py-3 font-mono">{device.riskCount}</td>
+                  <td className="px-4 py-3 font-mono">
+                    {device.riskCount > 0 ? (
+                      <Link href="/risks" className="text-danger hover:underline">
+                        {device.riskCount}
+                      </Link>
+                    ) : (
+                      device.riskCount
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
