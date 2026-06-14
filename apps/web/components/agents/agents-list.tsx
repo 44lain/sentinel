@@ -4,17 +4,17 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { agentStatus, agentStatusLabel, type AgentRecord } from "@/lib/agents/utils";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 
 interface AgentsListProps {
   agents: AgentRecord[];
 }
 
-function statusClass(status: ReturnType<typeof agentStatus>) {
-  if (status === "active") return "bg-emerald-500/15 text-emerald-400";
-  if (status === "inactive") return "bg-muted text-muted-foreground";
-  return "bg-amber-500/15 text-amber-400";
+function statusVariant(status: ReturnType<typeof agentStatus>): "success" | "default" | "warning" {
+  if (status === "active") return "success";
+  if (status === "inactive") return "default";
+  return "warning";
 }
 
 export function AgentsList({ agents }: AgentsListProps) {
@@ -52,7 +52,7 @@ export function AgentsList({ agents }: AgentsListProps) {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-border text-left text-muted-foreground">
+              <tr className="border-border text-muted-foreground border-b text-left">
                 <th className="px-4 py-3 font-medium">Nome</th>
                 <th className="px-4 py-3 font-medium">Status</th>
                 <th className="px-4 py-3 font-medium">Último scan</th>
@@ -63,19 +63,15 @@ export function AgentsList({ agents }: AgentsListProps) {
               {agents.map((agent) => {
                 const status = agentStatus(agent);
                 return (
-                  <tr key={agent.id} className="border-b border-border last:border-0">
+                  <tr
+                    key={agent.id}
+                    className="border-border hover:bg-muted/40 border-b transition-colors last:border-0"
+                  >
                     <td className="px-4 py-3 font-medium">{agent.name}</td>
                     <td className="px-4 py-3">
-                      <span
-                        className={cn(
-                          "inline-flex rounded-full px-2 py-0.5 text-xs font-medium",
-                          statusClass(status)
-                        )}
-                      >
-                        {agentStatusLabel(status)}
-                      </span>
+                      <Badge variant={statusVariant(status)}>{agentStatusLabel(status)}</Badge>
                     </td>
-                    <td className="px-4 py-3 text-muted-foreground">
+                    <td className="text-muted-foreground px-4 py-3">
                       {agent.last_scan_at
                         ? new Intl.DateTimeFormat("pt-BR", {
                             dateStyle: "short",
