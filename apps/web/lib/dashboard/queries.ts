@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { formatOsLabel, formatPortsSummary } from "@/lib/format-ports";
 import type { DeviceStatus, Severity } from "@/types";
 
 export type DashboardMetrics = {
@@ -14,6 +15,8 @@ export type RecentDevice = {
   hostname: string | null;
   status: DeviceStatus;
   portCount: number;
+  portsSummary: string;
+  osLabel: string;
   riskCount: number;
 };
 
@@ -74,30 +77,55 @@ export async function getRecentDevices(limit = 5): Promise<RecentDevice[]> {
 
   if (!latestScan) return [];
 
-  const { data: devices } = await supabase
+  const { data: devices, error: devicesError } = await supabase
     .from("devices")
-    .select("id, ip, hostname, status")
+    .select("id, ip, hostname, status, os_name, os_accuracy, os_family")
     .eq("scan_id", latestScan.id)
     .order("ip")
     .limit(limit);
+
+  if (devicesError) {
+    console.error("[dashboard] devices query failed:", devicesError.message);
+    return [];
+  }
 
   if (!devices?.length) return [];
 
   const deviceIds = devices.map((d) => d.id);
 
-  const { data: portCounts } = await supabase
+  const { data: portRows, error: portsError } = await supabase
     .from("ports")
-    .select("device_id")
-    .in("device_id", deviceIds);
+    .select("device_id, port_number, service_name, service_product, service_version")
+    .in("device_id", deviceIds)
+    .order("port_number");
+
+  if (portsError) {
+    console.error("[dashboard] ports query failed:", portsError.message);
+  }
 
   const { data: riskCounts } = await supabase
     .from("risks")
     .select("device_id, severity")
     .in("device_id", deviceIds);
 
-  const portsByDevice = new Map<string, number>();
-  for (const row of portCounts ?? []) {
-    portsByDevice.set(row.device_id, (portsByDevice.get(row.device_id) ?? 0) + 1);
+  const portsByDevice = new Map<
+    string,
+    {
+      port_number: number;
+      service_name: string | null;
+      service_product: string | null;
+      service_version: string | null;
+    }[]
+  >();
+  for (const row of portRows ?? []) {
+    const list = portsByDevice.get(row.device_id) ?? [];
+    list.push({
+      port_number: row.port_number,
+      service_name: row.service_name,
+      service_product: row.service_product,
+      service_version: row.service_version,
+    });
+    portsByDevice.set(row.device_id, list);
   }
 
   const risksByDevice = new Map<string, number>();
@@ -105,23 +133,33 @@ export async function getRecentDevices(limit = 5): Promise<RecentDevice[]> {
     risksByDevice.set(row.device_id, (risksByDevice.get(row.device_id) ?? 0) + 1);
   }
 
-  return devices.map((device) => ({
-    id: device.id,
-    ip: device.ip,
-    hostname: device.hostname,
-    status: device.status as DeviceStatus,
-    portCount: portsByDevice.get(device.id) ?? 0,
-    riskCount: risksByDevice.get(device.id) ?? 0,
-  }));
+  return devices.map((device) => {
+    const ports = portsByDevice.get(device.id) ?? [];
+    return {
+      id: device.id,
+      ip: device.ip,
+      hostname: device.hostname,
+      status: device.status as DeviceStatus,
+      portCount: ports.length,
+      portsSummary: formatPortsSummary(ports),
+      osLabel: formatOsLabel(device.os_name, device.os_accuracy, device.os_family),
+      riskCount: risksByDevice.get(device.id) ?? 0,
+    };
+  });
 }
 
 export async function hasAnyScan(): Promise<boolean> {
   const supabase = await createClient();
-  const { count } = await supabase
+  const { count, error } = await supabase
     .from("scans")
     .select("id", { count: "exact", head: true })
     .not("finished_at", "is", null)
     .limit(1);
+
+  if (error) {
+    console.error("[dashboard] hasAnyScan failed:", error.message);
+    return false;
+  }
 
   return (count ?? 0) > 0;
 }

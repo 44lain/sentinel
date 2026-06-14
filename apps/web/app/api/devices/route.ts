@@ -89,6 +89,9 @@ export async function POST(request: Request) {
         mac_address: device.mac_address ?? null,
         vendor: device.vendor ?? null,
         status: device.status,
+        os_name: device.os_name ?? null,
+        os_accuracy: device.os_accuracy ?? null,
+        os_family: device.os_family ?? null,
       })
       .select("id")
       .single();
@@ -104,6 +107,9 @@ export async function POST(request: Request) {
           port_number: port.port_number,
           protocol: port.protocol,
           service_name: port.service_name ?? null,
+          service_product: port.service_product ?? null,
+          service_version: port.service_version ?? null,
+          service_extra: port.service_extra ?? null,
           state: port.state,
         }))
       );

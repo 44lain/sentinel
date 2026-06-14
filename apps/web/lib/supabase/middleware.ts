@@ -7,12 +7,38 @@ const ROTAS_AUTH = ["/login", "/register", "/forgot-password"];
 function rotaPublica(pathname: string): boolean {
   if (ROTAS_PUBLICAS.includes(pathname)) return true;
   if (pathname.startsWith("/auth/")) return true;
-  // APIs autenticam via JWT (cookie) ou Bearer (agente) nos Route Handlers
   if (pathname.startsWith("/api/")) return true;
   return false;
 }
 
+function isFlightRequest(request: NextRequest): boolean {
+  return (
+    request.headers.get("RSC") === "1" ||
+    request.headers.get("Next-Router-Prefetch") === "1" ||
+    request.headers.has("Next-Router-State-Tree")
+  );
+}
+
+function temCookieDeSessao(request: NextRequest): boolean {
+  return request.cookies.getAll().some((cookie) => cookie.name.includes("auth-token"));
+}
+
 export async function updateSession(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // Requisições RSC/prefetch: evita getUser() em cada flight (causa loop no Next 16 dev)
+  if (isFlightRequest(request)) {
+    if (!rotaPublica(pathname) && !temCookieDeSessao(request)) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/login";
+      if (pathname.startsWith("/dashboard")) {
+        url.searchParams.set("redirect", pathname);
+      }
+      return NextResponse.redirect(url);
+    }
+    return NextResponse.next();
+  }
+
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -39,8 +65,6 @@ export async function updateSession(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
-  const { pathname } = request.nextUrl;
 
   if (!user && pathname.startsWith("/dashboard")) {
     const url = request.nextUrl.clone();

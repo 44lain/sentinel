@@ -15,6 +15,9 @@ const portSchema = z.object({
   port_number: z.number().int().min(1).max(65535),
   protocol: z.enum(["tcp", "udp"]),
   service_name: z.string().nullable().optional(),
+  service_product: z.string().nullable().optional(),
+  service_version: z.string().nullable().optional(),
+  service_extra: z.string().nullable().optional(),
   state: z.enum(["open", "filtered"]),
 });
 
@@ -24,6 +27,9 @@ const deviceSchema = z.object({
   mac_address: z.string().nullable().optional(),
   vendor: z.string().nullable().optional(),
   status: z.enum(["online", "offline"]),
+  os_name: z.string().nullable().optional(),
+  os_accuracy: z.number().int().min(0).max(100).nullable().optional(),
+  os_family: z.string().nullable().optional(),
   ports: z.array(portSchema).default([]),
 });
 

@@ -74,6 +74,30 @@ export const RISK_RULES: RiskRule[] = [
     description: "Banco de dados MySQL acessível na rede.",
     recommendation: "Não exponha MySQL publicamente; use firewall.",
   },
+  {
+    ports: [5432],
+    service: "postgresql",
+    severity: "high",
+    title: "PostgreSQL exposto",
+    description: "Banco de dados PostgreSQL acessível na rede.",
+    recommendation: "Restrinja acesso ao banco via firewall ou VPN.",
+  },
+  {
+    ports: [6379],
+    service: "redis",
+    severity: "high",
+    title: "Redis exposto",
+    description: "Servidor Redis acessível na rede sem autenticação adequada.",
+    recommendation: "Não exponha Redis publicamente; exija senha e bind restrito.",
+  },
+  {
+    ports: [27017],
+    service: "mongodb",
+    severity: "high",
+    title: "MongoDB exposto",
+    description: "Banco de dados MongoDB acessível na rede.",
+    recommendation: "Habilite autenticação e restrinja acesso por firewall.",
+  },
 ];
 
 export type PortInput = {

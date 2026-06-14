@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { formatOsLabel, formatPortsSummary } from "@/lib/format-ports";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 
@@ -19,7 +20,9 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
   const supabase = await createClient();
   let query = supabase
     .from("devices")
-    .select("id, scan_id, ip, hostname, mac_address, vendor, status, first_seen_at")
+    .select(
+      "id, scan_id, ip, hostname, mac_address, vendor, status, first_seen_at, os_name, os_accuracy, os_family, ports(port_number, service_name, service_product, service_version)"
+    )
     .order("first_seen_at", { ascending: false })
     .limit(100);
 
@@ -30,7 +33,11 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
     query = query.or(`ip.ilike.%${search}%,hostname.ilike.%${search}%`);
   }
 
-  const { data: devices } = await query;
+  const { data: devices, error } = await query;
+
+  if (error) {
+    console.error("[inventory] devices query failed:", error.message);
+  }
 
   return (
     <main className="flex flex-1 flex-col gap-6 p-8">
@@ -91,6 +98,8 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
                     <th className="px-4 py-3 font-medium">Hostname</th>
                     <th className="px-4 py-3 font-medium">MAC</th>
                     <th className="px-4 py-3 font-medium">Fabricante</th>
+                    <th className="px-4 py-3 font-medium">Sistema</th>
+                    <th className="px-4 py-3 font-medium">Portas abertas</th>
                     <th className="px-4 py-3 font-medium">Status</th>
                     <th className="px-4 py-3 font-medium">Visto em</th>
                   </tr>
@@ -104,6 +113,19 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
                         {device.mac_address ?? "—"}
                       </td>
                       <td className="px-4 py-3">{device.vendor ?? "—"}</td>
+                      <td className="px-4 py-3 text-xs">
+                        {formatOsLabel(device.os_name, device.os_accuracy, device.os_family)}
+                      </td>
+                      <td className="px-4 py-3 font-mono text-xs">
+                        {formatPortsSummary(
+                          (device.ports ?? []).map((port) => ({
+                            port_number: port.port_number,
+                            service_name: port.service_name,
+                            service_product: port.service_product,
+                            service_version: port.service_version,
+                          }))
+                        )}
+                      </td>
                       <td className="px-4 py-3">
                         <span
                           className={cn(

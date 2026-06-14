@@ -11,7 +11,7 @@ interface TokenRevealProps {
 }
 
 export function TokenReveal({ token, agentId, apiUrl, onClose }: TokenRevealProps) {
-  const command = `netatlas scan --token ${token} --agent-id ${agentId} --api ${apiUrl}`;
+  const command = `netatlas scan --token ${token} --agent-id ${agentId} --api ${apiUrl} --profile deep --include-localhost`;
 
   return (
     <Card className="border-primary/40">
@@ -26,6 +26,11 @@ export function TokenReveal({ token, agentId, apiUrl, onClose }: TokenRevealProp
         <div className="space-y-1">
           <p className="text-sm font-medium">Comando para executar na rede local:</p>
           <div className="rounded-md bg-muted p-3 font-mono text-xs break-all">{command}</div>
+          <p className="text-muted-foreground text-xs">
+            Use <code className="text-foreground">--profile deep</code> para máximo detalhe
+            (scripts NSE, UDP, OS) e <code className="text-foreground">--include-localhost</code>{" "}
+            para Docker.
+          </p>
         </div>
         <Button type="button" variant="outline" onClick={onClose}>
           Entendi, já copiei
