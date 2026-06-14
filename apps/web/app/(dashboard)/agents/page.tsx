@@ -1,4 +1,5 @@
 import { AgentsPageClient } from "@/components/agents/agents-page-client";
+import { PageHeader } from "@/components/layout/page-header";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function AgentsPage() {
@@ -11,13 +12,11 @@ export default async function AgentsPage() {
   const apiUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
   return (
-    <main className="flex flex-1 flex-col gap-6 p-8">
-      <div>
-        <h1 className="text-2xl font-semibold">Agentes</h1>
-        <p className="text-muted-foreground">
-          Registre e gerencie agentes coletores na sua rede local
-        </p>
-      </div>
+    <main className="flex flex-1 flex-col gap-6 p-6 md:p-8">
+      <PageHeader
+        title="Agentes"
+        description="Registre e gerencie agentes coletores na sua rede local."
+      />
       <AgentsPageClient agents={agents ?? []} apiUrl={apiUrl} />
     </main>
   );

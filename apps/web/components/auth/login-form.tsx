@@ -68,12 +68,12 @@ export function LoginForm({ redirectTo, authError }: LoginFormProps) {
             {pending ? "Entrando…" : "Entrar"}
           </Button>
           <div className="text-muted-foreground flex w-full flex-col gap-2 text-center text-sm">
-            <Link href="/forgot-password" className="hover:text-foreground">
+            <Link href="/forgot-password" className="hover:text-primary transition-colors">
               Esqueci minha senha
             </Link>
             <p>
               Não tem conta?{" "}
-              <Link href="/register" className="text-foreground font-medium hover:underline">
+              <Link href="/register" className="text-primary font-medium hover:underline">
                 Criar conta
               </Link>
             </p>

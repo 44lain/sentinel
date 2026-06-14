@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono } from "next/font/google";
+import { Sora } from "next/font/google";
+import { AppProviders } from "@/components/providers/app-providers";
+import { ThemeScript } from "@/components/theme/theme-script";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const sora = Sora({
+  variable: "--font-sora",
   subsets: ["latin"],
   display: "swap",
   adjustFontFallback: true,
@@ -29,9 +32,15 @@ export default function RootLayout({
   return (
     <html
       lang="pt-BR"
-      className={`${geistSans.variable} ${geistMono.variable} dark h-full antialiased`}
+      className={`${sora.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className={`${geistSans.className} flex min-h-full flex-col`}>{children}</body>
+      <head>
+        <ThemeScript />
+      </head>
+      <body className={`${sora.className} flex min-h-full flex-col`}>
+        <AppProviders>{children}</AppProviders>
+      </body>
     </html>
   );
 }

@@ -1,11 +1,8 @@
 import { DashboardEmptyState } from "@/components/dashboard/dashboard-empty-state";
 import { MetricsCards } from "@/components/dashboard/metrics-cards";
 import { RecentDevicesTable } from "@/components/dashboard/recent-devices-table";
-import {
-  getDashboardMetrics,
-  getRecentDevices,
-  hasAnyScan,
-} from "@/lib/dashboard/queries";
+import { PageHeader } from "@/components/layout/page-header";
+import { getDashboardMetrics, getRecentDevices, hasAnyScan } from "@/lib/dashboard/queries";
 
 export default async function DashboardPage() {
   const hasScan = await hasAnyScan();
@@ -13,11 +10,11 @@ export default async function DashboardPage() {
 
   if (!hasScan) {
     return (
-      <main className="flex flex-1 flex-col gap-6 p-8">
-        <div>
-          <h1 className="text-2xl font-semibold">Dashboard</h1>
-          <p className="text-muted-foreground">Visão geral da sua rede local</p>
-        </div>
+      <main className="flex flex-1 flex-col gap-6 p-6 md:p-8">
+        <PageHeader
+          title="Dashboard"
+          description="Visão geral da sua rede local e métricas do último scan."
+        />
         <DashboardEmptyState apiUrl={apiUrl} />
       </main>
     );
@@ -26,11 +23,11 @@ export default async function DashboardPage() {
   const [metrics, devices] = await Promise.all([getDashboardMetrics(), getRecentDevices()]);
 
   return (
-    <main className="flex flex-1 flex-col gap-6 p-8">
-      <div>
-        <h1 className="text-2xl font-semibold">Dashboard</h1>
-        <p className="text-muted-foreground">Visão geral da sua rede local</p>
-      </div>
+    <main className="flex flex-1 flex-col gap-6 p-6 md:p-8">
+      <PageHeader
+        title="Dashboard"
+        description="Visão geral da sua rede local e métricas do último scan."
+      />
       <div className="space-y-6">
         <MetricsCards metrics={metrics} />
         <RecentDevicesTable devices={devices} />
