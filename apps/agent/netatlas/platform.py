@@ -27,7 +27,7 @@ def _request(
     req = urllib.request.Request(url, data=data, method=method, headers=headers)
 
     try:
-        with urllib.request.urlopen(req, timeout=120) as response:
+        with urllib.request.urlopen(req, timeout=300) as response:
             payload = response.read().decode("utf-8")
             if not payload:
                 return {}
@@ -65,7 +65,6 @@ def upload_scan(
     """Envia scan completo para a plataforma."""
     base = _api_base(api_url)
 
-    # Health check não exige token na API atual
     check_health(api_url)
 
     created = _request(
@@ -107,11 +106,17 @@ def _device_to_api(device: DeviceResult) -> dict:
         "mac_address": device.mac_address,
         "vendor": device.vendor,
         "status": device.status,
+        "os_name": device.os_name,
+        "os_accuracy": device.os_accuracy,
+        "os_family": device.os_family,
         "ports": [
             {
                 "port_number": port.port_number,
                 "protocol": port.protocol,
                 "service_name": port.service_name,
+                "service_product": port.service_product,
+                "service_version": port.service_version,
+                "service_extra": port.service_extra,
                 "state": port.state,
             }
             for port in device.ports

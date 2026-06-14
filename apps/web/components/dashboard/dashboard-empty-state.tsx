@@ -27,7 +27,10 @@ export function DashboardEmptyState({ apiUrl = "https://netatlas.vercel.app" }: 
         <div className="mx-auto max-w-md space-y-2 rounded-lg bg-muted/50 p-4 text-left font-mono text-xs">
           <p># Após registrar, execute na rede local:</p>
           <p className="text-foreground">
-            netatlas scan --token SEU_TOKEN --agent-id ID --api {apiUrl}
+            netatlas scan --token SEU_TOKEN --agent-id ID --api {apiUrl} --profile deep --include-localhost
+          </p>
+          <p className="text-muted-foreground">
+            # --profile deep: scripts NSE, UDP, detecção de SO e versões completas
           </p>
         </div>
       </CardContent>

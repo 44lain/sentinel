@@ -31,26 +31,20 @@ Redes locais frequentemente carecem de observabilidade. Roteadores não mostram 
 
 ## Features
 
-### Atuais (pré-desenvolvimento)
+### Atuais (v0.4.0-beta — Sprints 1–4)
 
-> O repositório está em fase de preparação. Nenhuma funcionalidade de produto foi implementada ainda.
+| Área | Status |
+|------|--------|
+| **Autenticação** | Cadastro, login, logout, recuperação de senha (Supabase Auth) |
+| **Dashboard** | Métricas, dispositivos recentes com portas e SO, empty state |
+| **NetAtlas Agent** | CLI Python, discovery ARP/ping, scan Nmap em duas fases, perfis quick/standard/deep |
+| **Inventário** | Listagem com busca, filtros, portas abertas e versões de serviço |
+| **Riscos** | Motor server-side (FTP, SSH, SMB, MySQL, PostgreSQL, Redis, MongoDB…) |
+| **Agentes** | Registro com token único, listagem, revogação |
+| **Branding** | Logos NetAtlas na landing, auth e sidebar do dashboard |
+| **Deploy** | Vercel (web) + Supabase (banco/auth) em produção |
 
-- Documentação de planejamento e arquitetura
-- Estrutura de contexto para desenvolvimento assistido por IA
-- Convenções de código e design system documentados
-
-### Planejadas (MVP v1.0.0)
-
-| Área               | Funcionalidades                                                                 |
-| ------------------ | ------------------------------------------------------------------------------- |
-| **Autenticação**   | Cadastro, login, logout, recuperação de senha via Supabase Auth                 |
-| **Dashboard**      | Métricas de rede, dispositivos recentes, gráfico de histórico, skeleton loading |
-| **NetAtlas Agent** | CLI Python, descoberta ARP/ping, scan Nmap, envio via API REST                  |
-| **Inventário**     | Listagem com busca/filtros, detalhe de dispositivo, histórico de scans          |
-| **Riscos**         | Motor de classificação (Baixo/Médio/Alto), painel e detalhe com recomendações   |
-| **Agentes**        | Registro com token, listagem de status, revogação                               |
-| **Exportação**     | Download de scans em JSON e CSV                                                 |
-| **Demo**           | Página pública com dados fictícios                                              |
+### Planejadas (Sprints 5–7)
 
 ### Futuras (pós-MVP)
 
@@ -95,10 +89,10 @@ Backend-as-a-Service: autenticação de usuários, banco PostgreSQL com Row Leve
 ### Fluxo de dados
 
 1. Usuário registra um agente no dashboard e recebe um token Bearer (exibido uma única vez).
-2. Agente executa `netatlas scan --token TOKEN --api URL`.
+2. Agente executa `netatlas scan --token TOKEN --agent-id ID --api URL --profile deep --include-localhost`.
 3. Agente valida conectividade (`GET /api/health`), cria scan (`POST /api/scans`).
-4. Discovery identifica hosts; Nmap escaneia portas por dispositivo.
-5. Agente envia dispositivos e portas (`POST /api/devices`).
+4. Discovery identifica hosts; Nmap descobre portas TCP (`-sT`) e enriquece com versões/scripts.
+5. Agente envia dispositivos, portas e metadados de SO (`POST /api/devices`).
 6. Backend classifica riscos automaticamente.
 7. Agente finaliza scan (`PATCH /api/scans/:id`).
 8. Dashboard atualiza via polling (30s) ou Supabase Realtime.
@@ -136,39 +130,42 @@ Backend-as-a-Service: autenticação de usuários, banco PostgreSQL com Row Leve
 
 ## Instalação
 
-> Setup completo será documentado a partir do Sprint 1. Abaixo, o fluxo previsto.
-
 ### Pré-requisitos
 
 - Node.js 20+
-- npm ou pnpm
-- Conta Supabase
-- Conta Vercel (deploy)
-- Python 3.11+ e Nmap (para o agente, Sprint 3+)
+- npm (monorepo com Turborepo)
+- Conta Supabase + Vercel
+- Python 3.11+ e Nmap (agente)
 
-### Web App (em breve)
+### Web App
 
 ```bash
-git clone https://github.com/seu-usuario/netatlas.git
+git clone https://github.com/44lain/netatlas.git
 cd netatlas
-cp .env.example .env.local
-# Preencher NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_ANON_KEY
+cp .env.example apps/web/.env.local
+# Preencher NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY
 npm install
-npm run dev
+npm run dev          # Turbopack (padrão Next 16)
+npm run dev:clean    # limpa .next e reinicia (se cache corromper)
 ```
 
-### NetAtlas Agent (em breve)
+### NetAtlas Agent
 
 ```bash
-pip install netatlas-agent
-netatlas scan --token SEU_TOKEN --api https://sua-instancia.vercel.app
+cd apps/agent
+pip install -e ".[dev]"
+netatlas scan --token SEU_TOKEN --agent-id UUID --api https://netatlas.vercel.app \
+  --profile deep --include-localhost
 ```
+
+Perfis: `quick` (rápido), `standard` (padrão), `deep` (scripts NSE). Detecção de SO e UDP
+requerem `sudo`; portas TCP funcionam sem root.
 
 ### Supabase
 
 1. Criar projeto em [supabase.com](https://supabase.com)
-2. Executar migrations em `supabase/migrations/`
-3. Configurar variáveis de ambiente na Vercel
+2. `supabase db push` (migrations em `supabase/migrations/`)
+3. Configurar env vars na Vercel e em `apps/web/.env.local`
 
 ---
 

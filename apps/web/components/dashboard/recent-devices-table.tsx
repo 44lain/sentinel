@@ -47,7 +47,8 @@ export function RecentDevicesTable({ devices }: RecentDevicesTableProps) {
                 <th className="px-4 py-3 font-medium">IP</th>
                 <th className="px-4 py-3 font-medium">Hostname</th>
                 <th className="px-4 py-3 font-medium">Status</th>
-                <th className="px-4 py-3 font-medium">Portas</th>
+                <th className="px-4 py-3 font-medium">Sistema</th>
+                <th className="px-4 py-3 font-medium">Portas abertas</th>
                 <th className="px-4 py-3 font-medium">Riscos</th>
               </tr>
             </thead>
@@ -57,7 +58,15 @@ export function RecentDevicesTable({ devices }: RecentDevicesTableProps) {
                   <td className="px-4 py-3 font-mono">{device.ip}</td>
                   <td className="px-4 py-3">{device.hostname ?? "—"}</td>
                   <td className="px-4 py-3">{statusBadge(device.status)}</td>
-                  <td className="px-4 py-3 font-mono">{device.portCount}</td>
+                  <td className="px-4 py-3 text-xs">{device.osLabel}</td>
+                  <td className="px-4 py-3">
+                    <span className="font-mono text-xs">{device.portsSummary}</span>
+                    {device.portCount > 0 ? (
+                      <span className="text-muted-foreground ml-2 text-xs">
+                        ({device.portCount})
+                      </span>
+                    ) : null}
+                  </td>
                   <td className="px-4 py-3 font-mono">{device.riskCount}</td>
                 </tr>
               ))}
