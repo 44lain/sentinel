@@ -1,6 +1,6 @@
 # Contribuindo com o Sentinel
 
-Obrigado por considerar contribuir com o Sentinel! Este guia resume as convenções do projeto. Documentação detalhada para desenvolvimento assistido por IA está em `.ai/` (memória operacional local).
+Obrigado por considerar contribuir com o Sentinel! Este guia resume as convenções do projeto.
 
 ---
 
