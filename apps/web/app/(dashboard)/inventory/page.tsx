@@ -125,15 +125,11 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
               ))}
             </div>
           ) : (
-            <div className="divide-border divide-y">
-              {groups.map((group) => (
-                <InventoryTable
-                  key={group.label}
-                  devices={group.devices}
-                  groupLabel={groupBy !== "none" ? group.label : undefined}
-                />
-              ))}
-            </div>
+            <InventoryTable
+              groups={groups}
+              showGroupHeaders={groupBy !== "none"}
+              hideVendorColumn={groupBy === "vendor"}
+            />
           )}
         </CardContent>
       </Card>

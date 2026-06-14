@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StaggerContainer, StaggerItem } from "@/components/motion/stagger";
 import type { DashboardMetrics } from "@/lib/dashboard/queries";
@@ -39,6 +40,7 @@ export function MetricsCards({ metrics }: MetricsCardsProps) {
       icon: AlertTriangle,
       description: "Detectados",
       tone: metrics.riskCount > 0 ? "text-danger" : "text-success",
+      href: metrics.riskCount > 0 ? "/risks" : undefined,
     },
     {
       title: "Último scan",
@@ -52,8 +54,8 @@ export function MetricsCards({ metrics }: MetricsCardsProps) {
 
   return (
     <StaggerContainer className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      {cards.map((card) => (
-        <StaggerItem key={card.title}>
+      {cards.map((card) => {
+        const content = (
           <Card className="hover:border-primary/40 hover:shadow-primary/5 h-full transition-all duration-200 hover:shadow-md">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-caption font-medium">{card.title}</CardTitle>
@@ -66,8 +68,20 @@ export function MetricsCards({ metrics }: MetricsCardsProps) {
               <p className="text-muted-foreground text-xs">{card.description}</p>
             </CardContent>
           </Card>
-        </StaggerItem>
-      ))}
+        );
+
+        return (
+          <StaggerItem key={card.title}>
+            {"href" in card && card.href ? (
+              <Link href={card.href} className="block h-full">
+                {content}
+              </Link>
+            ) : (
+              content
+            )}
+          </StaggerItem>
+        );
+      })}
     </StaggerContainer>
   );
 }

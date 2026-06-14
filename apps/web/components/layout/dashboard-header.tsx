@@ -16,6 +16,8 @@ interface DashboardHeaderProps {
 const SEGMENT_LABELS: Record<string, string> = {
   dashboard: "Dashboard",
   inventory: "Inventário",
+  scans: "Scans",
+  risks: "Riscos",
   agents: "Agentes",
   settings: "Configurações",
 };

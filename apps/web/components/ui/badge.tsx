@@ -1,5 +1,7 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
+import type { Severity } from "@/types";
+import { severityLabel } from "@/lib/risks/labels";
 
 const badgeVariants = cva("inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium", {
   variants: {
@@ -34,4 +36,17 @@ export function StatusBadge({ status }: StatusBadgeProps) {
   return (
     <Badge variant={isOnline ? "success" : "default"}>{isOnline ? "Online" : "Offline"}</Badge>
   );
+}
+
+const SEVERITY_VARIANT: Record<
+  Severity,
+  NonNullable<VariantProps<typeof badgeVariants>["variant"]>
+> = {
+  high: "danger",
+  medium: "warning",
+  low: "info",
+};
+
+export function SeverityBadge({ severity }: { severity: Severity }) {
+  return <Badge variant={SEVERITY_VARIANT[severity]}>{severityLabel(severity)}</Badge>;
 }
