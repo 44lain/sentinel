@@ -4,6 +4,13 @@ export const uuidParamSchema = z.string().uuid("Identificador inválido.");
 
 const boundedString = (max: number) => z.string().max(max).nullable().optional();
 
+/** Trunca strings longas em vez de rejeitar o payload (ex.: scripts Nmap em service_extra). */
+const truncatingString = (max: number) =>
+  z.preprocess((val) => {
+    if (typeof val !== "string") return val;
+    return val.length > max ? val.slice(0, max) : val;
+  }, z.string().max(max).nullable().optional());
+
 export const createScanSchema = z.object({
   agent_id: z.string().uuid("agent_id inválido"),
 });
@@ -21,7 +28,7 @@ const portSchema = z.object({
   service_name: boundedString(128),
   service_product: boundedString(128),
   service_version: boundedString(64),
-  service_extra: boundedString(256),
+  service_extra: truncatingString(2048),
   state: z.enum(["open", "filtered"]),
 });
 
