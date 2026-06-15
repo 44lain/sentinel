@@ -58,14 +58,14 @@ export function ProfileMenu({ email, displayName }: ProfileMenuProps) {
             <Menu.Separator className="bg-border -mx-1.5 my-1 h-px" />
 
             <Menu.Item
-              render={<Link href="/settings" />}
+              render={<Link href="/settings/account" />}
               className="data-[highlighted]:bg-muted flex cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm outline-none"
             >
               <User className="text-muted-foreground size-4" />
               Minha conta
             </Menu.Item>
             <Menu.Item
-              render={<Link href="/settings" />}
+              render={<Link href="/settings/preferences" />}
               className="data-[highlighted]:bg-muted flex cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm outline-none"
             >
               <Settings className="text-muted-foreground size-4" />

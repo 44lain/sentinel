@@ -3,7 +3,8 @@ import { authenticateAgentForScan } from "@/lib/auth/agent";
 import { detectRisks } from "@/lib/risk-engine";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import { createDevicesSchema } from "@/lib/validations/api";
+import { escapeLikePattern, sanitizeSearchTerm } from "@/lib/security/sanitize";
+import { createDevicesSchema, deviceListQuerySchema } from "@/lib/validations/api";
 
 export async function GET(request: Request) {
   const supabase = await createClient();
@@ -19,8 +20,19 @@ export async function GET(request: Request) {
   }
 
   const { searchParams } = new URL(request.url);
-  const status = searchParams.get("status");
-  const search = searchParams.get("search")?.trim();
+  const queryParsed = deviceListQuerySchema.safeParse({
+    status: searchParams.get("status") ?? undefined,
+    search: searchParams.get("search") ?? undefined,
+  });
+
+  if (!queryParsed.success) {
+    return NextResponse.json(
+      { error: "VALIDATION_ERROR", message: "Parâmetros de busca inválidos." },
+      { status: 400 }
+    );
+  }
+
+  const { status, search } = queryParsed.data;
 
   let query = supabase
     .from("devices")
@@ -33,7 +45,8 @@ export async function GET(request: Request) {
   }
 
   if (search) {
-    query = query.or(`ip.ilike.%${search}%,hostname.ilike.%${search}%`);
+    const term = escapeLikePattern(sanitizeSearchTerm(search));
+    query = query.or(`ip.ilike.%${term}%,hostname.ilike.%${term}%`);
   }
 
   const { data, error } = await query;
@@ -76,6 +89,20 @@ export async function POST(request: Request) {
   }
 
   const supabase = createAdminClient();
+
+  const { data: scanRow } = await supabase
+    .from("scans")
+    .select("finished_at")
+    .eq("id", parsed.data.scan_id)
+    .maybeSingle();
+
+  if (scanRow?.finished_at) {
+    return NextResponse.json(
+      { error: "SCAN_CLOSED", message: "Este scan já foi finalizado." },
+      { status: 409 }
+    );
+  }
+
   let created = 0;
   let risksDetected = 0;
 
@@ -131,8 +158,5 @@ export async function POST(request: Request) {
     }
   }
 
-  return NextResponse.json(
-    { data: { created, risks_detected: risksDetected } },
-    { status: 201 }
-  );
+  return NextResponse.json({ data: { created, risks_detected: risksDetected } }, { status: 201 });
 }

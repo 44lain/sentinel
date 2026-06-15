@@ -19,7 +19,17 @@ interface ScanHistoryChartProps {
 
 export function ScanHistoryChart({ data }: ScanHistoryChartProps) {
   if (data.length < 2) {
-    return null;
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-heading-3">Evolução dos scans</CardTitle>
+          <CardDescription>
+            Execute pelo menos dois scans para visualizar a evolução de dispositivos, portas e
+            riscos.
+          </CardDescription>
+        </CardHeader>
+      </Card>
+    );
   }
 
   return (

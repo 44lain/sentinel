@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Logo } from "@/components/brand/logo";
 import { MetricsCards } from "@/components/dashboard/metrics-cards";
+import { SiteFooter } from "@/components/layout/site-footer";
 import { InventoryTable } from "@/components/inventory/inventory-table";
 import { RisksInsightsBar } from "@/components/risks/risks-insights";
 import { RisksTable } from "@/components/risks/risks-table";
@@ -96,6 +97,7 @@ export default function DemoPage() {
           </div>
         </section>
       </main>
+      <SiteFooter />
     </div>
   );
 }

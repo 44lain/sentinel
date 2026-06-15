@@ -195,4 +195,56 @@
   .text-label {
     @apply text-muted-foreground text-xs font-medium tracking-wide uppercase;
   }
+
+  /* Padrões cyberpunk sóbrio — Sprint Final v1.0 */
+  .cyber-grid-bg {
+    background-image:
+      linear-gradient(
+        to right,
+        color-mix(in oklch, var(--border) 40%, transparent) 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        to bottom,
+        color-mix(in oklch, var(--border) 40%, transparent) 1px,
+        transparent 1px
+      );
+    background-size: 48px 48px;
+  }
+
+  .cyber-card {
+    @apply bg-card/90 backdrop-blur-sm;
+  }
+
+  .cyber-scanline {
+    position: relative;
+  }
+
+  .cyber-scanline::after {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      color-mix(in oklch, var(--foreground) 3%, transparent) 2px,
+      color-mix(in oklch, var(--foreground) 3%, transparent) 4px
+    );
+    opacity: 0.35;
+  }
+
+  .cyber-logo-glow {
+    filter: drop-shadow(0 0 28px color-mix(in oklch, var(--brand-cyan) 35%, transparent));
+  }
+
+  .cyber-cta-glow:focus-visible {
+    box-shadow: 0 0 0 3px color-mix(in oklch, var(--brand-cyan) 40%, transparent);
+  }
+
+  .cyber-hero .cyber-cta-glow:hover {
+    box-shadow: 0 0 24px color-mix(in oklch, var(--brand-cyan) 30%, transparent);
+  }
 }

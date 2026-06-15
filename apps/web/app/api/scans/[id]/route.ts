@@ -22,7 +22,9 @@ export async function GET(_request: Request, context: RouteContext) {
 
   const { data, error } = await supabase
     .from("scans")
-    .select("id, agent_id, started_at, finished_at, duration_seconds, device_count, open_port_count")
+    .select(
+      "id, agent_id, started_at, finished_at, duration_seconds, device_count, open_port_count"
+    )
     .eq("id", id)
     .maybeSingle();
 
@@ -75,6 +77,19 @@ export async function PATCH(request: Request, context: RouteContext) {
   const supabase = createAdminClient();
   const finishedAt = parsed.data.finished_at ?? new Date().toISOString();
 
+  const { data: existing } = await supabase
+    .from("scans")
+    .select("finished_at")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (existing?.finished_at) {
+    return NextResponse.json(
+      { error: "SCAN_ALREADY_FINISHED", message: "Este scan já foi finalizado." },
+      { status: 409 }
+    );
+  }
+
   const { data, error } = await supabase
     .from("scans")
     .update({
@@ -94,10 +109,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     );
   }
 
-  await supabase
-    .from("agents")
-    .update({ last_scan_at: finishedAt })
-    .eq("id", auth.agentId);
+  await supabase.from("agents").update({ last_scan_at: finishedAt }).eq("id", auth.agentId);
 
   return NextResponse.json({ data });
 }

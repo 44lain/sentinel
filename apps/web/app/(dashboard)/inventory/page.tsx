@@ -17,6 +17,7 @@ import {
   type InventoryView,
 } from "@/lib/inventory/queries";
 import { createClient } from "@/lib/supabase/server";
+import { escapeLikePattern, sanitizeSearchTerm } from "@/lib/security/sanitize";
 
 interface InventoryPageProps {
   searchParams: Promise<{
@@ -57,7 +58,8 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
     query = query.eq("status", statusFilter);
   }
   if (search) {
-    query = query.or(`ip.ilike.%${search}%,hostname.ilike.%${search}%,vendor.ilike.%${search}%`);
+    const term = escapeLikePattern(sanitizeSearchTerm(search));
+    query = query.or(`ip.ilike.%${term}%,hostname.ilike.%${term}%,vendor.ilike.%${term}%`);
   }
 
   const { data: rawDevices, error } = await query;
@@ -78,12 +80,7 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
         description="Dispositivos únicos descobertos na sua rede — sem duplicatas entre scans."
       />
 
-      {devices.length > 0 ? (
-        <>
-          <InventoryInsightsBar insights={insights} />
-          <DiscoveryTimeline devices={recent} />
-        </>
-      ) : null}
+      {devices.length > 0 ? <InventoryInsightsBar insights={insights} /> : null}
 
       <Card>
         <CardHeader>
@@ -133,6 +130,8 @@ export default async function InventoryPage({ searchParams }: InventoryPageProps
           )}
         </CardContent>
       </Card>
+
+      {devices.length > 0 && recent.length > 0 ? <DiscoveryTimeline devices={recent} /> : null}
     </main>
   );
 }

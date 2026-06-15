@@ -1,7 +1,16 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const ROTAS_PUBLICAS = ["/", "/login", "/register", "/forgot-password", "/reset-password", "/demo"];
+const ROTAS_PUBLICAS = [
+  "/",
+  "/login",
+  "/register",
+  "/forgot-password",
+  "/reset-password",
+  "/demo",
+  "/terms",
+  "/privacy",
+];
 const ROTAS_AUTH = ["/login", "/register", "/forgot-password"];
 
 function rotaPublica(pathname: string): boolean {

@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
 import { hashAgentToken } from "@/lib/auth/agent";
+import { assertSameOrigin } from "@/lib/security/request-guards";
 import { createClient } from "@/lib/supabase/server";
 import { createAgentSchema } from "@/lib/validations/agents";
 
@@ -33,6 +34,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const csrfError = assertSameOrigin(request);
+  if (csrfError) return csrfError;
+
   const supabase = await createClient();
   const {
     data: { user },

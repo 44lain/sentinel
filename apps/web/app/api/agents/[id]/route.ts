@@ -1,10 +1,23 @@
 import { NextResponse } from "next/server";
+import { assertSameOrigin } from "@/lib/security/request-guards";
 import { createClient } from "@/lib/supabase/server";
+import { uuidParamSchema } from "@/lib/validations/api";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
-export async function DELETE(_request: Request, context: RouteContext) {
+export async function DELETE(request: Request, context: RouteContext) {
+  const csrfError = assertSameOrigin(request);
+  if (csrfError) return csrfError;
+
   const { id } = await context.params;
+  const parsedId = uuidParamSchema.safeParse(id);
+  if (!parsedId.success) {
+    return NextResponse.json(
+      { error: "VALIDATION_ERROR", message: "Identificador inválido." },
+      { status: 400 }
+    );
+  }
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -17,7 +30,12 @@ export async function DELETE(_request: Request, context: RouteContext) {
     );
   }
 
-  const { data, error } = await supabase.from("agents").delete().eq("id", id).select("id").maybeSingle();
+  const { data, error } = await supabase
+    .from("agents")
+    .delete()
+    .eq("id", parsedId.data)
+    .select("id")
+    .maybeSingle();
 
   if (error) {
     return NextResponse.json(

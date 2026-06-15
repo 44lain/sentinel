@@ -1,7 +1,8 @@
-import { NextResponse } from "next/server";
 import { getScanExportData } from "@/lib/export/queries";
 import { scanToCsv } from "@/lib/export/scan-export";
 import { createClient } from "@/lib/supabase/server";
+import { uuidParamSchema } from "@/lib/validations/api";
+import { NextResponse } from "next/server";
 import { z } from "zod";
 
 type RouteContext = { params: Promise<{ id: string }> };
@@ -17,6 +18,14 @@ function filename(scanId: string, format: "json" | "csv", startedAt: string): st
 
 export async function GET(request: Request, context: RouteContext) {
   const { id } = await context.params;
+  const idParsed = uuidParamSchema.safeParse(id);
+  if (!idParsed.success) {
+    return NextResponse.json(
+      { error: "VALIDATION_ERROR", message: "Identificador de scan inválido." },
+      { status: 400 }
+    );
+  }
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -41,7 +50,7 @@ export async function GET(request: Request, context: RouteContext) {
     );
   }
 
-  const payload = await getScanExportData(id);
+  const payload = await getScanExportData(idParsed.data);
   if (!payload) {
     return NextResponse.json(
       { error: "NOT_FOUND", message: "Scan não encontrado." },
@@ -50,7 +59,7 @@ export async function GET(request: Request, context: RouteContext) {
   }
 
   const { format } = parsed.data;
-  const name = filename(id, format, payload.scan.started_at);
+  const name = filename(idParsed.data, format, payload.scan.started_at);
 
   if (format === "csv") {
     const csv = scanToCsv(payload);

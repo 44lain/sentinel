@@ -20,6 +20,8 @@ const SEGMENT_LABELS: Record<string, string> = {
   risks: "Riscos",
   agents: "Agentes",
   settings: "Configurações",
+  account: "Conta",
+  preferences: "Preferências",
 };
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;

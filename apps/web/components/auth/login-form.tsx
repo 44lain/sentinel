@@ -3,16 +3,9 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import { login } from "@/app/(auth)/actions";
+import { AuthCard } from "@/components/auth/auth-shell";
 import { AuthMessage } from "@/components/auth/auth-message";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -25,14 +18,14 @@ export function LoginForm({ redirectTo, authError }: LoginFormProps) {
   const [state, formAction, pending] = useActionState(login, null);
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader>
-        <CardTitle>Entrar</CardTitle>
-        <CardDescription>Acesse sua conta NetAtlas</CardDescription>
-      </CardHeader>
+    <AuthCard>
+      <div className="p-6 pb-0">
+        <h2 className="text-heading-3">Entrar</h2>
+        <p className="text-muted-foreground text-sm">Acesse sua conta NetAtlas</p>
+      </div>
       <form action={formAction}>
         {redirectTo ? <input type="hidden" name="redirect" value={redirectTo} /> : null}
-        <CardContent className="space-y-4">
+        <div className="space-y-4 p-6">
           <AuthMessage error={authError ?? state?.error} success={state?.success} />
           <div className="space-y-2">
             <Label htmlFor="email">E-mail</Label>
@@ -62,9 +55,9 @@ export function LoginForm({ redirectTo, authError }: LoginFormProps) {
               <p className="text-destructive text-sm">{state.fieldErrors.password[0]}</p>
             ) : null}
           </div>
-        </CardContent>
-        <CardFooter className="flex flex-col gap-4">
-          <Button type="submit" className="w-full" disabled={pending}>
+        </div>
+        <div className="flex flex-col gap-4 border-t p-6 pt-0">
+          <Button type="submit" className="cyber-cta-glow w-full" disabled={pending}>
             {pending ? "Entrando…" : "Entrar"}
           </Button>
           <div className="text-muted-foreground flex w-full flex-col gap-2 text-center text-sm">
@@ -78,8 +71,8 @@ export function LoginForm({ redirectTo, authError }: LoginFormProps) {
               </Link>
             </p>
           </div>
-        </CardFooter>
+        </div>
       </form>
-    </Card>
+    </AuthCard>
   );
 }

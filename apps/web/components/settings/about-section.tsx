@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-const APP_VERSION = "0.4.0-beta";
+const APP_VERSION = "1.0.0";
 
 export function AboutSection() {
   return (
