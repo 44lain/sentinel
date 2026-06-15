@@ -1,0 +1,247 @@
+import type { DashboardMetrics } from "@/lib/dashboard/queries";
+import type { InventoryDevice } from "@/lib/inventory/queries";
+import type { RiskInsights, RiskRecord } from "@/lib/risks/queries";
+import type { ScanHistoryPoint } from "@/lib/scans/queries";
+
+const now = Date.now();
+const daysAgo = (days: number) => new Date(now - days * 86_400_000).toISOString();
+
+/** Dados estáticos para a demo pública — não dependem de Supabase. */
+export const DEMO_METRICS: DashboardMetrics = {
+  deviceCount: 14,
+  openPortCount: 47,
+  riskCount: 6,
+  lastScanAt: daysAgo(0),
+};
+
+export const DEMO_DEVICES: InventoryDevice[] = [
+  {
+    id: "demo-1",
+    scan_id: "demo-scan",
+    ip: "192.168.1.1",
+    hostname: "gateway.local",
+    mac_address: "AA:BB:CC:11:22:33",
+    vendor: "TP-Link",
+    status: "online",
+    first_seen_at: daysAgo(30),
+    os_name: "Linux 4.19",
+    os_accuracy: 92,
+    os_family: "Linux",
+    ports: [
+      { port_number: 53, service_name: "domain", service_product: null, service_version: null },
+      { port_number: 80, service_name: "http", service_product: "nginx", service_version: "1.24" },
+      {
+        port_number: 443,
+        service_name: "https",
+        service_product: "nginx",
+        service_version: "1.24",
+      },
+    ],
+  },
+  {
+    id: "demo-2",
+    scan_id: "demo-scan",
+    ip: "192.168.1.10",
+    hostname: "nas.homelab",
+    mac_address: "DE:AD:BE:EF:00:01",
+    vendor: "Synology",
+    status: "online",
+    first_seen_at: daysAgo(14),
+    os_name: "Linux 3.10",
+    os_accuracy: 88,
+    os_family: "Linux",
+    ports: [
+      { port_number: 22, service_name: "ssh", service_product: "OpenSSH", service_version: "8.4" },
+      {
+        port_number: 445,
+        service_name: "microsoft-ds",
+        service_product: null,
+        service_version: null,
+      },
+      { port_number: 5000, service_name: "http", service_product: null, service_version: null },
+    ],
+  },
+  {
+    id: "demo-3",
+    scan_id: "demo-scan",
+    ip: "192.168.1.42",
+    hostname: "dev-box",
+    mac_address: "12:34:56:78:9A:BC",
+    vendor: "Intel",
+    status: "online",
+    first_seen_at: daysAgo(3),
+    os_name: "Linux 6.1",
+    os_accuracy: 95,
+    os_family: "Linux",
+    ports: [
+      { port_number: 22, service_name: "ssh", service_product: "OpenSSH", service_version: "9.6" },
+      {
+        port_number: 3000,
+        service_name: "http",
+        service_product: "Node.js",
+        service_version: null,
+      },
+      {
+        port_number: 5432,
+        service_name: "postgresql",
+        service_product: "PostgreSQL",
+        service_version: "16",
+      },
+    ],
+  },
+  {
+    id: "demo-4",
+    scan_id: "demo-scan",
+    ip: "192.168.1.55",
+    hostname: null,
+    mac_address: "00:11:22:33:44:55",
+    vendor: "Samsung",
+    status: "offline",
+    first_seen_at: daysAgo(7),
+    os_name: null,
+    os_accuracy: null,
+    os_family: null,
+    ports: [],
+  },
+  {
+    id: "demo-5",
+    scan_id: "demo-scan",
+    ip: "192.168.1.100",
+    hostname: "printer",
+    mac_address: "FF:EE:DD:CC:BB:AA",
+    vendor: "HP",
+    status: "online",
+    first_seen_at: daysAgo(60),
+    os_name: null,
+    os_accuracy: null,
+    os_family: null,
+    ports: [
+      { port_number: 80, service_name: "http", service_product: null, service_version: null },
+      {
+        port_number: 9100,
+        service_name: "jetdirect",
+        service_product: null,
+        service_version: null,
+      },
+    ],
+  },
+];
+
+export const DEMO_RISKS: RiskRecord[] = [
+  {
+    id: "risk-1",
+    severity: "high",
+    title: "Telnet exposto",
+    description: "Serviço Telnet detectado sem criptografia.",
+    recommendation: "Desative Telnet e use SSH.",
+    portNumber: 23,
+    deviceId: "demo-legacy",
+    deviceIp: "192.168.1.200",
+    deviceHostname: "legacy-switch",
+  },
+  {
+    id: "risk-2",
+    severity: "high",
+    title: "RDP exposto",
+    description: "Remote Desktop Protocol acessível na rede.",
+    recommendation: "Restrinja RDP via firewall ou VPN.",
+    portNumber: 3389,
+    deviceId: "demo-win",
+    deviceIp: "192.168.1.88",
+    deviceHostname: "workstation",
+  },
+  {
+    id: "risk-3",
+    severity: "medium",
+    title: "SMB exposto",
+    description: "Compartilhamento SMB detectado.",
+    recommendation: "Verifique autenticação e segmentação.",
+    portNumber: 445,
+    deviceId: "demo-2",
+    deviceIp: "192.168.1.10",
+    deviceHostname: "nas.homelab",
+  },
+  {
+    id: "risk-4",
+    severity: "medium",
+    title: "PostgreSQL exposto",
+    description: "Banco PostgreSQL acessível na rede local.",
+    recommendation: "Limite acesso por IP e use TLS.",
+    portNumber: 5432,
+    deviceId: "demo-3",
+    deviceIp: "192.168.1.42",
+    deviceHostname: "dev-box",
+  },
+  {
+    id: "risk-5",
+    severity: "low",
+    title: "HTTP sem redirecionamento HTTPS",
+    description: "Serviço HTTP detectado na porta 80.",
+    recommendation: "Configure redirect para HTTPS.",
+    portNumber: 80,
+    deviceId: "demo-1",
+    deviceIp: "192.168.1.1",
+    deviceHostname: "gateway.local",
+  },
+  {
+    id: "risk-6",
+    severity: "low",
+    title: "SSH com versão exposta",
+    description: "Banner SSH revela versão do servidor.",
+    recommendation: "Mantenha OpenSSH atualizado.",
+    portNumber: 22,
+    deviceId: "demo-3",
+    deviceIp: "192.168.1.42",
+    deviceHostname: "dev-box",
+  },
+];
+
+export const DEMO_RISK_INSIGHTS: RiskInsights = {
+  total: 6,
+  high: 2,
+  medium: 2,
+  low: 2,
+};
+
+export const DEMO_CHART: ScanHistoryPoint[] = [
+  {
+    id: "c1",
+    label: "01 mar",
+    startedAt: daysAgo(28),
+    deviceCount: 9,
+    openPortCount: 31,
+    riskCount: 3,
+  },
+  {
+    id: "c2",
+    label: "08 mar",
+    startedAt: daysAgo(21),
+    deviceCount: 11,
+    openPortCount: 38,
+    riskCount: 4,
+  },
+  {
+    id: "c3",
+    label: "15 mar",
+    startedAt: daysAgo(14),
+    deviceCount: 12,
+    openPortCount: 42,
+    riskCount: 5,
+  },
+  {
+    id: "c4",
+    label: "22 mar",
+    startedAt: daysAgo(7),
+    deviceCount: 13,
+    openPortCount: 45,
+    riskCount: 5,
+  },
+  {
+    id: "c5",
+    label: "29 mar",
+    startedAt: daysAgo(0),
+    deviceCount: 14,
+    openPortCount: 47,
+    riskCount: 6,
+  },
+];

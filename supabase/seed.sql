@@ -1,1 +1,3 @@
 -- Dados de demonstração (Sprint 6)
+-- A demo pública em /demo usa dados estáticos em lib/demo/sample-data.ts.
+-- Este arquivo permanece vazio para ambientes locais sem seed obrigatório.

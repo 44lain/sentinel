@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { ScanRecord } from "@/lib/scans/queries";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -48,10 +49,12 @@ export function ScansTable({ scans }: ScansTableProps) {
                   className="border-border hover:bg-muted/40 border-b last:border-0"
                 >
                   <td className="px-4 py-3">
-                    <p className="font-medium">{formatDate(scan.startedAt)}</p>
-                    {scan.finishedAt ? (
-                      <p className="text-caption">Fim: {formatDate(scan.finishedAt)}</p>
-                    ) : null}
+                    <Link href={`/scans/${scan.id}`} className="hover:text-primary block">
+                      <p className="font-medium">{formatDate(scan.startedAt)}</p>
+                      {scan.finishedAt ? (
+                        <p className="text-caption">Fim: {formatDate(scan.finishedAt)}</p>
+                      ) : null}
+                    </Link>
                   </td>
                   <td className="px-4 py-3">{scan.agentName}</td>
                   <td className="px-4 py-3">

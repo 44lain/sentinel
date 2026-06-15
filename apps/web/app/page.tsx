@@ -25,10 +25,13 @@ export default function HomePage() {
         </p>
       </div>
       <div className="relative flex flex-wrap items-center justify-center gap-3">
-        <Link href="/login" className={cn(buttonVariants({ size: "lg" }))}>
+        <Link href="/demo" className={cn(buttonVariants({ size: "lg" }))}>
+          Ver demo
+        </Link>
+        <Link href="/login" className={cn(buttonVariants({ variant: "outline", size: "lg" }))}>
           Entrar
         </Link>
-        <Link href="/register" className={cn(buttonVariants({ variant: "outline", size: "lg" }))}>
+        <Link href="/register" className={cn(buttonVariants({ variant: "ghost", size: "lg" }))}>
           Criar conta
         </Link>
       </div>

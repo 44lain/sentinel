@@ -22,11 +22,23 @@ const SEGMENT_LABELS: Record<string, string> = {
   settings: "Configurações",
 };
 
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function segmentLabel(segment: string, index: number, segments: string[]): string {
+  if (SEGMENT_LABELS[segment]) return SEGMENT_LABELS[segment];
+  if (UUID_PATTERN.test(segment)) {
+    const parent = segments[index - 1];
+    if (parent === "scans") return "Detalhe";
+    if (parent === "inventory") return segment;
+  }
+  return segment;
+}
+
 function useBreadcrumbs() {
   const pathname = usePathname();
   const segments = pathname.split("/").filter(Boolean);
   return segments.map((segment, index) => ({
-    label: SEGMENT_LABELS[segment] ?? segment,
+    label: segmentLabel(segment, index, segments),
     href: "/" + segments.slice(0, index + 1).join("/"),
     isLast: index === segments.length - 1,
   }));
